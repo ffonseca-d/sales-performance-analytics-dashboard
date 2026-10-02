@@ -1,16 +1,13 @@
 from pathlib import Path
-
 import polars as pl
 
-
 DATA_PATH = Path(__file__).parent / "data" / "generated" / "sales_dataset.parquet"
-
 
 def load_data() -> pl.DataFrame:
     """Load the analytical dataset used by the dashboard."""
     if not DATA_PATH.exists():
         raise FileNotFoundError(
-            "Dataset not found. Run `python -m src.data.generator` first."
+            f"Dataset not found at {DATA_PATH.resolve()}. Run the generator first."
         )
 
     return pl.read_parquet(DATA_PATH)
