@@ -5,9 +5,6 @@ __pycache__/
 venv/
 .env
 
-# Generated data
-data/generated/*.parquet
-data/generated/*.csv
 
 # IDE
 .vscode/
