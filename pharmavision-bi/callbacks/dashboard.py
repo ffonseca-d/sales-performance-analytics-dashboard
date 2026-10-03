@@ -12,28 +12,6 @@ from src.business.metrics import (
 def register_callbacks(app) -> None:
     df = load_data()
 
-    # CORRECCIÓN: Usamos un Input genérico o simplemente dejamos que se ejecute al cargar las dependencias
-    @app.callback(
-        Output("region-filter", "options"),
-        Output("category-filter", "options"),
-        Input("region-filter", "value"), # Se mantiene para activar el arranque inicial, pero con la lógica limpia
-    )
-    def populate_filters(_):
-        # Obtenemos los valores únicos de Polars de forma segura
-        unique_regions = sorted(df["region"].unique().to_list()) if "region" in df.columns else []
-        unique_categories = sorted(df["category"].unique().to_list()) if "category" in df.columns else []
-
-        regions = [{"label": "All", "value": "ALL"}] + [
-            {"label": str(value), "value": str(value)}
-            for value in unique_regions
-        ]
-        categories = [{"label": "All", "value": "ALL"}] + [
-            {"label": str(value), "value": str(value)}
-            for value in unique_categories
-        ]
-        return regions, categories
-
-
     @app.callback(
         Output("kpi-revenue", "children"),
         Output("kpi-units", "children"),

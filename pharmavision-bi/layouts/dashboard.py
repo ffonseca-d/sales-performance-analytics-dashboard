@@ -1,5 +1,5 @@
 from dash import dcc, html
-
+import polars as pl
 
 def _kpi_card(title: str, value_id: str) -> html.Div:
     return html.Div(
@@ -10,8 +10,18 @@ def _kpi_card(title: str, value_id: str) -> html.Div:
         className="kpi-card",
     )
 
+def create_layout(df: pl.DataFrame) -> html.Div:
+    # Extraemos las opciones únicas directamente con Polars
+    regions = [{"label": "All", "value": "ALL"}] + [
+        {"label": str(val), "value": str(val)}
+        for val in sorted(df["region"].unique().to_list())
+    ]
+    
+    categories = [{"label": "All", "value": "ALL"}] + [
+        {"label": str(val), "value": str(val)}
+        for val in sorted(df["category"].unique().to_list())
+    ]
 
-def create_layout() -> html.Div:
     return html.Div(
         [
             html.Header(
@@ -28,7 +38,7 @@ def create_layout() -> html.Div:
                             html.Label("Region"),
                             dcc.Dropdown(
                                 id="region-filter",
-                                options=[{"label": "All", "value": "ALL"}],
+                                options=regions,  # <-- Inyectado directamente
                                 value="ALL",
                                 clearable=False,
                             ),
@@ -39,7 +49,7 @@ def create_layout() -> html.Div:
                             html.Label("Category"),
                             dcc.Dropdown(
                                 id="category-filter",
-                                options=[{"label": "All", "value": "ALL"}],
+                                options=categories,  # <-- Inyectado directamente
                                 value="ALL",
                                 clearable=False,
                             ),
