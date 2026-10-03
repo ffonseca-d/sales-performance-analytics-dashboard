@@ -19,10 +19,11 @@ def filter_data(
     category: str | None = None,
 ) -> pl.DataFrame:
     """Apply dashboard filters to the analytical dataset."""
-    if region and region != "ALL":
+    # Convertimos a mayúsculas para comparar con "ALL" de forma segura
+    if region and region.upper() != "ALL":
         df = df.filter(pl.col("region") == region)
 
-    if category and category != "ALL":
+    if category and category.upper() != "ALL":
         df = df.filter(pl.col("category") == category)
 
     return df
