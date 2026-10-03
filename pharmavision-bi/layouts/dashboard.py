@@ -1,5 +1,4 @@
 from dash import dcc, html
-import polars as pl
 
 def _kpi_card(title: str, value_id: str) -> html.Div:
     return html.Div(
@@ -10,16 +9,21 @@ def _kpi_card(title: str, value_id: str) -> html.Div:
         className="kpi-card",
     )
 
-def create_layout(df: pl.DataFrame) -> html.Div:
-    # Extraemos las opciones únicas directamente con Polars
-    regions = [{"label": "All", "value": "ALL"}] + [
-        {"label": str(val), "value": str(val)}
-        for val in sorted(df["region"].unique().to_list())
+def create_layout() -> html.Div:  # <-- Quitamos el argumento 'df'
+    # Escribe aquí las regiones y categorías reales de tu set de datos
+    regions = [
+        {"label": "All", "value": "ALL"},
+        {"label": "East", "value": "East"},
+        {"label": "West", "value": "West"},
+        {"label": "North", "value": "North"},
+        {"label": "South", "value": "South"}
     ]
     
-    categories = [{"label": "All", "value": "ALL"}] + [
-        {"label": str(val), "value": str(val)}
-        for val in sorted(df["category"].unique().to_list())
+    categories = [
+        {"label": "All", "value": "ALL"},
+        {"label": "Antibiotics", "value": "Antibiotics"},
+        {"label": "Analgesics", "value": "Analgesics"},
+        {"label": "Vitamins", "value": "Vitamins"}
     ]
 
     return html.Div(
@@ -38,7 +42,7 @@ def create_layout(df: pl.DataFrame) -> html.Div:
                             html.Label("Region"),
                             dcc.Dropdown(
                                 id="region-filter",
-                                options=regions,  # <-- Inyectado directamente
+                                options=regions,
                                 value="ALL",
                                 clearable=False,
                             ),
@@ -49,7 +53,7 @@ def create_layout(df: pl.DataFrame) -> html.Div:
                             html.Label("Category"),
                             dcc.Dropdown(
                                 id="category-filter",
-                                options=categories,  # <-- Inyectado directamente
+                                options=categories,
                                 value="ALL",
                                 clearable=False,
                             ),

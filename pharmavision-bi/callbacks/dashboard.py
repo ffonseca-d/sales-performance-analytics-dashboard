@@ -10,7 +10,8 @@ from src.business.metrics import (
 )
 
 def register_callbacks(app) -> None:
-    df = load_data()
+    # Cargamos el archivo y descartamos inmediatamente las columnas sobrantes para liberar RAM
+    df = load_data().select(["region", "category", "revenue", "units", "visited_flag", "month"])
 
     @app.callback(
         Output("kpi-revenue", "children"),
