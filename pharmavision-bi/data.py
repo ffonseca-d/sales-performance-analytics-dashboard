@@ -8,10 +8,20 @@ DATA_PATH = BASE_DIR / "data" / "generated" / "sales_dataset.parquet"
 def load_data() -> pl.DataFrame:
     """Load the analytical dataset used by the dashboard."""
     if not DATA_PATH.exists():
-        raise FileNotFoundError(f"Dataset not found at {DATA_PATH.resolve()}")
+        raise FileNotFoundError(
+            f"Dataset not found at {DATA_PATH.resolve()}."
+        )
 
-    # Retornamos el dataframe original con la fecha nativa de Polars
-    return pl.read_parquet(DATA_PATH)
+    df = pl.read_parquet(DATA_PATH)
+    
+    # ASEGURAMOS EL TIPO DE DATO TEMPORAL PARA RENDER:
+    # Si viene como String, lo casteamos a Date nativo. Si ya es Date, no le afectará.
+    if df["date"].dtype == pl.String:
+        df = df.with_columns(
+            pl.col("date").str.to_date("%Y-%m-%d")
+        )
+        
+    return df
 
 
 def filter_data(

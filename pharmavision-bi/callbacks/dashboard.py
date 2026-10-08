@@ -24,24 +24,23 @@ def register_callbacks(app) -> None:
         Input("category-filter", "value"),
     )
     def update_dashboard(region, category):
-        # 1. Saneamos los filtros ignorando variaciones de "All" / "ALL"
+        # Saneamos los filtros ignorando variaciones de texto "All"
         reg_filter = None if not region or region.upper() == "ALL" else region
         cat_filter = None if not category or category.upper() == "ALL" else category
 
         filtered = filter_data(df, region=reg_filter, category=cat_filter)
         kpis = calculate_kpis(filtered)
 
-        # 2. Obtenemos los DataFrames de Polars agregados (que ya ocupan muy pocas filas)
+        # Calculamos las métricas con las fechas nativas ya corregidas
         trend = revenue_trend(filtered)
         region_data = revenue_by_region(filtered)
         category_data = revenue_by_category(filtered)
 
-        # 3. Forzamos a convertir la columna temporal a String directamente en Polars
-        # Esto evita el bug de truncado/zonas horarias sin usar Pandas
+        # Convertimos la columna 'month' truncada a String para que Plotly la grafique sin desfases de UTC
         if "month" in trend.columns:
             trend = trend.with_columns(pl.col("month").dt.strftime("%Y-%m-%d"))
 
-        # 4. Pasamos los objetos de Polars DIRECTAMENTE a Plotly Express
+        # Renderizamos pasando los DataFrames directamente
         trend_fig = px.line(
             trend,
             x="month",
