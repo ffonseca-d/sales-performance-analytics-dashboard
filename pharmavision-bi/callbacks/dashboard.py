@@ -23,7 +23,15 @@ def register_callbacks(app) -> None:
         Input("category-filter", "value"),
     )
     def update_dashboard(region, category):
-        filtered = filter_data(df, region=region, category=category)
+        # --- CORRECCIÓN DE FILTROS "ALL" ---
+        # Si el usuario selecciona "All", lo cambiamos a None para que no busque un texto "All" en el Parquet
+        reg_filter = None if region == "All" or not region else region
+        cat_filter = None if category == "All" or not category else category
+
+        # Pasamos las variables saneadas a la función de filtrado
+        filtered = filter_data(df, region=reg_filter, category=cat_filter)
+        # ------------------------------------
+
         kpis = calculate_kpis(filtered)
 
         trend = revenue_trend(filtered)
