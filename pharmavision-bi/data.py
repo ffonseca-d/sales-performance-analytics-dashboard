@@ -22,18 +22,19 @@ def load_data() -> pl.DataFrame:
 
     return df
 
-
 def filter_data(
     df: pl.DataFrame,
     region: str | None = None,
     category: str | None = None,
 ) -> pl.DataFrame:
     """Apply dashboard filters to the analytical dataset."""
-    # Si llega None o "ALL", ignoramos el filtro y mostramos todo
-    if region and region != "ALL":
+    
+    # Validamos convirtiendo a mayúsculas para evitar errores de formato
+    if region and region.upper() != "ALL":
         df = df.filter(pl.col("region") == region)
 
-    if category and category != "ALL":
+    if category and category.upper() != "ALL":
         df = df.filter(pl.col("category") == category)
 
     return df
+
