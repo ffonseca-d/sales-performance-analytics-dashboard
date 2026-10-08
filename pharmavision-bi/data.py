@@ -1,27 +1,30 @@
-from pathlib import Path
-import polars as pl
-
 import os
 from pathlib import Path
 import polars as pl
 
-# 1. Forzamos a buscar la ruta absoluta real desde la raíz del contenedor de Render
 BASE_DIR = Path(__file__).resolve().parent
-
 DATA_PATH = BASE_DIR / "data" / "generated" / "sales_dataset.parquet"
 
 def load_data() -> pl.DataFrame:
     """Load the analytical dataset used by the dashboard."""
-    
-    # 2. Imprime la ruta exacta en los logs de Render para saber dónde está buscando
-    print(f"--- INTENTANDO CARGAR PARQUET DESDE: {DATA_PATH.resolve()} ---", flush=True)
-    
     if not DATA_PATH.exists():
         raise FileNotFoundError(
-            f"Dataset not found at {DATA_PATH.resolve()}. Run the generator first."
+            f"Dataset not found at {DATA_PATH.resolve()}."
         )
 
-    return pl.read_parquet(DATA_PATH)
+    df = pl.read_parquet(DATA_PATH)
+    
+    # --- DIAGNÓSTICO EN RENDER ---
+    print("\n=== AUDITORÍA DE DATOS EN RENDER ===", flush=True)
+    print(f"Total de filas leídas: {df.height}", flush=True)
+    if df.height > 0:
+        print("Columnas disponibles:", df.columns, flush=True)
+        print("Primeras 2 filas del dataset:\n", df.head(2), flush=True)
+    print("====================================\n", flush=True)
+    # ------------------------------
+
+    return df
+
 
 
 def filter_data(
