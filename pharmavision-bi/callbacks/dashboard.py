@@ -1,5 +1,6 @@
 from dash import Input, Output
 import plotly.express as px
+import polars as pl
 
 from data import filter_data, load_data
 from src.business.metrics import (
@@ -30,20 +31,19 @@ def register_callbacks(app) -> None:
         filtered = filter_data(df, region=reg_filter, category=cat_filter)
         kpis = calculate_kpis(filtered)
 
-        # 2. Las funciones de métricas de Polars se ejecutarán perfectamente con fechas nativas
+        # 2. Obtenemos los DataFrames de Polars agregados (que ya ocupan muy pocas filas)
         trend = revenue_trend(filtered)
         region_data = revenue_by_region(filtered)
         category_data = revenue_by_category(filtered)
 
-        # 3. Convertimos a Pandas para Plotly
-        df_trend_pandas = trend.to_pandas()
-        
-        # Evitamos problemas de zonas horarias en Render convirtiendo la fecha calculada a texto para Plotly
-        if "month" in df_trend_pandas.columns:
-            df_trend_pandas["month"] = df_trend_pandas["month"].astype(str)
+        # 3. Forzamos a convertir la columna temporal a String directamente en Polars
+        # Esto evita el bug de truncado/zonas horarias sin usar Pandas
+        if "month" in trend.columns:
+            trend = trend.with_columns(pl.col("month").dt.strftime("%Y-%m-%d"))
 
+        # 4. Pasamos los objetos de Polars DIRECTAMENTE a Plotly Express
         trend_fig = px.line(
-            df_trend_pandas,
+            trend,
             x="month",
             y="revenue",
             markers=True,
@@ -51,7 +51,7 @@ def register_callbacks(app) -> None:
         )
         
         region_fig = px.bar(
-            region_data.to_pandas(),
+            region_data,
             x="revenue",
             y="region",
             orientation="h",
@@ -59,7 +59,7 @@ def register_callbacks(app) -> None:
         )
         
         category_fig = px.bar(
-            category_data.to_pandas(),
+            category_data,
             x="category",
             y="revenue",
             title="Revenue by Category",
