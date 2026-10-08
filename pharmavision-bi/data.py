@@ -14,17 +14,13 @@ def load_data() -> pl.DataFrame:
 
     df = pl.read_parquet(DATA_PATH)
     
-    # --- DIAGNÓSTICO EN RENDER ---
-    print("\n=== AUDITORÍA DE DATOS EN RENDER ===", flush=True)
-    print(f"Total de filas leídas: {df.height}", flush=True)
-    if df.height > 0:
-        print("Columnas disponibles:", df.columns, flush=True)
-        print("Primeras 2 filas del dataset:\n", df.head(2), flush=True)
-    print("====================================\n", flush=True)
-    # ------------------------------
+    # CONVERSIÓN CRÍTICA PARA SERVIDORES NUBE:
+    # Convertimos la columna 'date' de tipo pl.Date a texto plano (String)
+    df = df.with_columns(
+        pl.col("date").dt.strftime("%Y-%m-%d")
+    )
 
     return df
-
 
 
 def filter_data(
